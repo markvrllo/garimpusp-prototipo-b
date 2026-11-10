@@ -2,7 +2,7 @@
 
 Protótipo de interação do **GarimpUSP**, plataforma de compra, venda e troca entre estudantes da USP, desenvolvido para a disciplina PRG0005 · Fundamentos em Empreendedorismo (2026), Entrega 5.
 
-**Acesse:** https://marcosreballo-hub.github.io/garimpusp-prototipo-b/
+**Acesse:** [https://marcosreballo-hub.github.io/garimpusp-prototipo-b/](https://markvrllo.github.io/garimpusp-prototipo-b/)
 
 ## O que esta versão mostra
 
