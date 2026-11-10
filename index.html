@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GarimpUSP Procura-se</title>
+<meta name="description" content="Protótipo B do GarimpUSP: pedido, ofertas, reserva de 48 h com chat protegido e avaliação mútua.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+img{max-width:100%}
+:root{
+  --page:#EEF2EF; --page-ink:#14231E; --page-mute:#55665F; --page-line:#D3DDD8; --chip:#FFFFFF;
+  --app-bg:#F6F8F7; --app-card:#FFFFFF; --app-ink:#13221D; --app-mute:#5E6E68; --app-line:#E1E8E4;
+  --green:#0D6B52; --green-soft:#DDF0E8; --coral:#E8553D; --coral-soft:#FDE6E1; --gold:#C98A0B;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0F1714;--page-ink:#E4EEE9;--page-mute:#9AB0A7;--page-line:#26352F;--chip:#18231F;color-scheme:dark}}
+:root[data-theme="dark"]{--page:#0F1714;--page-ink:#E4EEE9;--page-mute:#9AB0A7;--page-line:#26352F;--chip:#18231F;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--page-ink);font-family:var(--body);margin:0;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:40px;align-items:start}
+@media (max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--page-mute);font-weight:600}
+h1{font-family:var(--display);font-size:clamp(28px,4vw,40px);line-height:1.1;margin:6px 0 12px;text-wrap:balance}
+.lead{color:var(--page-mute);max-width:60ch;margin:0 0 20px}
+.steps{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.steps button{width:100%;text-align:left;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;background:var(--chip);border:1px solid var(--page-line);border-radius:12px;padding:12px 14px;color:inherit;font:inherit;cursor:pointer}
+.steps button:hover{border-color:var(--green)}
+.steps button[aria-current="step"]{border-color:var(--green);box-shadow:0 0 0 2px var(--green) inset}
+.steps .n{font-family:var(--display);font-weight:700;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--green-soft);color:var(--green);font-size:14px}
+.steps strong{display:block;font-size:15px}
+.steps span.d{display:block;font-size:13px;color:var(--page-mute)}
+.note{margin-top:18px;font-size:13px;color:var(--page-mute);border-top:1px solid var(--page-line);padding-top:14px;max-width:62ch}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+
+.phone{width:100%;max-width:390px;margin:0 auto;background:#101815;border-radius:44px;padding:12px;box-shadow:0 24px 60px -24px rgba(10,30,22,.45)}
+.screen{background:var(--app-bg);color:var(--app-ink);border-radius:34px;overflow:hidden;height:780px;display:flex;flex-direction:column;position:relative;color-scheme:light}
+.status{display:flex;justify-content:space-between;padding:12px 26px 4px;font-size:12px;font-weight:600}
+.appbar{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 10px}
+.brand{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand b{color:var(--green)}
+.who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--app-mute)}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;background:var(--green);flex:none}
+.mode{display:flex;margin:0 18px 8px;background:#E7EEEA;border-radius:999px;padding:3px}
+.mode span{flex:1;text-align:center;font-size:12px;font-weight:600;padding:6px 0;border-radius:999px;color:var(--app-mute)}
+.mode span.on{background:#fff;color:var(--app-ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.view{flex:1;overflow-y:auto;padding:4px 18px 90px}
+.view[hidden]{display:none!important}
+h2{font-family:var(--display);font-size:22px;line-height:1.15;margin:6px 0 4px}
+.sub{font-size:13px;color:var(--app-mute);margin:0 0 14px}
+.card{background:var(--app-card);border:1px solid var(--app-line);border-radius:18px;padding:14px}
+.stack{display:flex;flex-direction:column;gap:12px}
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--app-mute);margin-bottom:6px}
+input.t,select.t{width:100%;border:1px solid var(--app-line);border-radius:12px;padding:11px 12px;font:inherit;font-size:14px;background:#fff;color:var(--app-ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--app-line);background:#fff;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;color:var(--app-ink);cursor:pointer;font-family:inherit}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.import{display:flex;gap:10px;align-items:center;background:var(--green-soft);border:1px dashed var(--green);border-radius:14px;padding:12px;cursor:pointer;width:100%;font:inherit;color:var(--app-ink);text-align:left}
+.import .ic{width:34px;height:34px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.import small{display:block;color:var(--app-mute);font-size:12px}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;background:var(--green);color:#fff}
+.btn.ghost{background:#fff;color:var(--app-ink);border:1px solid var(--app-line)}
+.btn.coral{background:var(--coral)}
+.btn.sm{padding:10px;font-size:13px;border-radius:12px}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px}
+.tag.v{background:var(--green-soft);color:var(--green)}
+.tag.u{background:var(--coral-soft);color:#B23A25}
+.tag.n{background:#EEF1F0;color:var(--app-mute)}
+.req{display:flex;gap:12px;align-items:flex-start}
+.cover{width:46px;height:62px;border-radius:6px;flex:none;background:linear-gradient(160deg,#1E5F8C,#163E5C);color:#fff;font-family:var(--display);font-size:9px;font-weight:700;padding:6px 5px;line-height:1.1}
+.cover.b{background:linear-gradient(160deg,#8C3A1E,#5C2516)}
+.meta{font-size:12px;color:var(--app-mute)}
+.price{font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.offer{display:flex;flex-direction:column;gap:10px}
+.offer .top{display:flex;gap:10px;align-items:center}
+.offer .name{font-weight:700;font-size:14px}
+.rep{display:flex;gap:14px;font-size:12px;color:var(--app-mute);font-variant-numeric:tabular-nums}
+.rep b{color:var(--app-ink)}
+.star{color:var(--gold)}
+.best{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset}
+.timer{display:flex;align-items:baseline;gap:8px;background:var(--app-ink);color:#fff;border-radius:18px;padding:14px 16px}
+.timer .big{font-family:var(--display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.timer small{color:#B9C9C2;font-size:12px}
+.track{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
+.track div{font-size:10px;font-weight:600;color:var(--app-mute);border-top:4px solid var(--app-line);padding-top:5px}
+.track div.ok{border-color:var(--green);color:var(--green)}
+.track div.now{border-color:var(--coral);color:#B23A25}
+.lock{display:flex;gap:10px;align-items:center;font-size:12px;background:#F2F5F4;border-radius:12px;padding:10px 12px;color:var(--app-mute)}
+.lock b{color:var(--app-ink)}
+.chat{display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 12px;border-radius:16px;font-size:13px;line-height:1.4}
+.msg.them{background:#fff;border:1px solid var(--app-line);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:var(--green);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg.sys{align-self:center;background:transparent;color:var(--app-mute);font-size:11px;padding:2px}
+.place{display:inline-block;margin-top:6px;background:rgba(255,255,255,.18);border-radius:8px;padding:4px 8px;font-size:12px;font-weight:600}
+.compose{display:flex;gap:8px}
+.compose input{flex:1}
+.stars{display:flex;gap:6px}
+.stars button{font-size:30px;line-height:1;background:none;border:0;cursor:pointer;color:#D5DCD9;padding:0}
+.stars button.on{color:var(--gold)}
+.yn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.yn button{border:1px solid var(--app-line);background:#fff;border-radius:12px;padding:12px 8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:var(--app-ink)}
+.yn button.on{border-color:var(--green);background:var(--green-soft);color:var(--green)}
+.yn button.no.on{border-color:var(--coral);background:var(--coral-soft);color:#B23A25}
+.alert{background:var(--coral);color:#fff;border-radius:18px;padding:14px}
+.alert b{font-family:var(--display);font-size:16px}
+.alert p{margin:4px 0 0;font-size:13px;opacity:.92}
+.tabbar{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--app-line);padding:8px 6px 18px}
+.tabbar span{font-size:10px;font-weight:600;text-align:center;color:var(--app-mute);display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar span i{width:22px;height:22px;border-radius:7px;background:#E7EEEA;display:block;font-style:normal;font-size:12px;line-height:22px;color:var(--app-mute)}
+.tabbar span.on{color:var(--green)}
+.tabbar span.on i{background:var(--green);color:#fff}
+.toast{position:absolute;left:18px;right:18px;bottom:84px;background:var(--app-ink);color:#fff;font-size:13px;font-weight:600;border-radius:14px;padding:12px 14px}
+.done{text-align:center;padding:10px 0}
+.done .big{font-family:var(--display);font-size:42px;font-weight:700;color:var(--green)}
+@media (prefers-reduced-motion:no-preference){.view{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+@media (max-width:430px){.phone{border-radius:0;padding:0;background:none;box-shadow:none}.screen{border-radius:20px;border:1px solid var(--page-line);height:740px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section>
+    <div class="eyebrow">PRG0005 · Entrega 5 · Protótipo B</div>
+    <h1>GarimpUSP Procura-se</h1>
+    <p class="lead">Nesta versão quem precisa do item publica um pedido, e quem tem o item recebe o alerta e faz a oferta. Depois do aceite, o item fica reservado por 48 h, o chat só libera o telefone com o aceite mútuo e as duas partes se avaliam no fim. Os dados são de exemplo; persona Lucas Silveira, campus São Carlos.</p>
+    <ol class="steps" id="steps">
+      <li><button data-go="pedido"><span class="n">1</span><span><strong>Publicar pedido</strong><span class="d">Lucas diz o que precisa, até quanto paga e até quando.</span></span></button></li>
+      <li><button data-go="alerta"><span class="n">2</span><span><strong>Alerta para quem tem</strong><span class="d">Vendedores do campus recebem o pedido e fazem oferta.</span></span></button></li>
+      <li><button data-go="ofertas"><span class="n">3</span><span><strong>Comparar ofertas</strong><span class="d">Preço, estado e reputação lado a lado.</span></span></button></li>
+      <li><button data-go="reserva"><span class="n">4</span><span><strong>Reserva de 48 h e chat protegido</strong><span class="d">O item sai da disputa e o encontro é combinado no app.</span></span></button></li>
+      <li><button data-go="avaliacao"><span class="n">5</span><span><strong>Confirmar e avaliar</strong><span class="d">Reputação mútua; quem some perde pontos.</span></span></button></li>
+    </ol>
+    <p class="note">Protótipo de interação em fidelidade média: telas navegáveis, sem banco de dados, sem login real e sem pagamento. Não foi testado com usuários.</p>
+  </section>
+
+  <div class="phone" aria-label="Protótipo B no celular">
+    <div class="screen" id="screen">
+      <div class="status"><span>12:48</span><span>5G ▮▮▮</span></div>
+      <div class="appbar">
+        <div class="brand">Garimp<b>USP</b></div>
+        <div class="who" id="who"><span>Lucas S. · ICMC</span><span class="av">LS</span></div>
+      </div>
+      <div class="mode" id="mode"><span class="on">Preciso de algo</span><span>Tenho para oferecer</span></div>
+
+      <div class="view" id="v-pedido">
+        <h2>O que você está procurando?</h2>
+        <p class="sub">Publique o pedido e deixe quem tem o item vir até você.</p>
+        <div class="stack">
+          <button class="import" id="importar" type="button"><span class="ic">≡</span><span><b>Importar lista de leitura da disciplina</b><small>Cálculo I · bibliografia básica (2 livros)</small></span></button>
+          <div class="card stack">
+            <div><label class="f" for="item">Item</label><input class="t" id="item" value="Cálculo vol. 1, James Stewart"></div>
+            <div><label class="f">Categoria</label>
+              <div class="chips" id="cats"><button class="chip on" type="button">Livros</button><button class="chip" type="button">Mobília</button><button class="chip" type="button">Eletrônicos</button><button class="chip" type="button">Serviços</button></div></div>
+            <div class="row2">
+              <div><label class="f" for="max">Pago até</label><input class="t" id="max" value="R$ 60"></div>
+              <div><label class="f" for="ate">Preciso até</label><input class="t" id="ate" value="sex., 14/11"></div>
+            </div>
+            <div><label class="f" for="local">Campus e ponto de entrega</label>
+              <select class="t" id="local"><option>São Carlos · Área 1 · Bandejão</option><option>São Carlos · Biblioteca do ICMC</option><option>São Carlos · Área 2 · Portaria</option></select></div>
+            <div><label class="f">Aceito</label><div class="chips" id="cond"><button class="chip on" type="button">Usado</button><button class="chip on" type="button">Com marcações</button><button class="chip" type="button">Só como novo</button></div></div>
+          </div>
+          <button class="btn" data-go="alerta" type="button">Publicar pedido</button>
+          <p class="meta" style="text-align:center;margin:0">Visível só para contas @usp.br verificadas do seu campus.</p>
+        </div>
+      </div>
+
+      <div class="view" id="v-alerta" hidden>
+        <div class="alert"><b>3 pessoas procuram livros que você marcou como "tenho"</b><p>Pedidos novos no campus São Carlos, organizados por prazo.</p></div>
+        <h2 style="margin-top:16px">Pedidos para você</h2>
+        <p class="sub">Você está vendo como Ana Paula R. (ICMC), que tem o livro na estante.</p>
+        <div class="stack">
+          <div class="card stack">
+            <div class="req"><div class="cover">CÁLCULO<br>vol. 1</div><div style="min-width:0">
+              <div style="font-weight:700">Cálculo vol. 1, James Stewart</div>
+              <div class="meta">Lucas S. · ICMC · paga até <b style="color:var(--app-ink)">R$ 60</b></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="tag u">Precisa até sex., 14/11</span><span class="tag v">✓ @usp.br</span></div></div></div>
+            <div class="row2"><div><label class="f" for="ofp">Sua oferta</label><input class="t" id="ofp" value="R$ 45"></div><div><label class="f" for="ofe">Estado</label><select class="t" id="ofe"><option>Bom, poucas marcações</option><option>Como novo</option></select></div></div>
+            <button class="btn sm" data-go="ofertas" type="button">Enviar oferta</button>
+          </div>
+          <div class="card req"><div class="cover b">PROB.<br>ESTAT.</div><div style="min-width:0"><div style="font-weight:700">Probabilidade e Estatística, Magalhães</div><div class="meta">Marina C. · EESC · paga até R$ 40</div><div style="margin-top:6px"><span class="tag n">Precisa até 21/11</span></div></div></div>
+          <div class="card req"><div class="cover" style="background:linear-gradient(160deg,#5B6B2A,#3A461B)">CONSERTO<br>TELA</div><div style="min-width:0"><div style="font-weight:700">Troca de tela, Moto G54</div><div class="meta">Diego A. · IFSC · serviço, orçamento a combinar</div><div style="margin-top:6px"><span class="tag n">Serviço</span></div></div></div>
+        </div>
+      </div>
+
+      <div class="view" id="v-ofertas" hidden>
+        <div class="card req" style="margin-bottom:14px"><div class="cover">CÁLCULO<br>vol. 1</div><div style="min-width:0"><div class="meta">Seu pedido</div><div style="font-weight:700">Cálculo vol. 1, James Stewart</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="tag v">3 ofertas</span><span class="tag u">Faltam 4 dias</span></div></div></div>
+        <h2>Ofertas recebidas</h2>
+        <p class="sub">"Compromissos cumpridos" conta os encontros que a pessoa confirmou e compareceu.</p>
+        <div class="stack">
+          <div class="card offer best">
+            <div class="top"><span class="av">AP</span><div style="flex:1;min-width:0"><div class="name">Ana Paula R. · ICMC</div><span class="tag v">✓ Verificada @usp.br</span></div><div class="price">R$ 45</div></div>
+            <div class="rep"><span><span class="star">★</span> <b>4,9</b></span><span><b>23</b> negociações</span><span><b>100%</b> compromissos</span></div>
+            <div class="meta">Bom estado, poucas marcações a lápis · entrega no Bandejão Área 1</div>
+            <button class="btn sm" data-go="reserva" type="button">Aceitar e reservar por 48 h</button>
+          </div>
+          <div class="card offer">
+            <div class="top"><span class="av" style="background:#41617A">RT</span><div style="flex:1;min-width:0"><div class="name">Rafael T. · EESC</div><span class="tag v">✓ Verificado @usp.br</span></div><div class="price">R$ 55</div></div>
+            <div class="rep"><span><span class="star">★</span> <b>4,6</b></span><span><b>8</b> negociações</span><span><b>88%</b> compromissos</span></div>
+            <div class="meta">Como novo · entrega na Área 2</div>
+            <button class="btn sm ghost" type="button" data-go="reserva">Aceitar e reservar por 48 h</button>
+          </div>
+          <div class="card offer">
+            <div class="top"><span class="av" style="background:#8A6A2E">JM</span><div style="flex:1;min-width:0"><div class="name">Júlia M. · IFSC</div><span class="tag n">Conta nova</span></div><div class="price">R$ 30</div></div>
+            <div class="rep"><span>Ainda sem avaliações</span></div>
+            <div class="meta">Capa gasta, sem marcações · combinar local</div>
+            <button class="btn sm ghost" type="button" data-go="reserva">Aceitar e reservar por 48 h</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="v-reserva" hidden>
+        <div class="track" aria-label="Andamento"><div class="ok">Pedido</div><div class="ok">Reserva</div><div class="now">Encontro</div><div>Avaliação</div></div>
+        <div class="timer"><span class="big" id="clock">47:59:30</span><small>reservado para você.<br>Se ninguém confirmar, o item volta a ficar disponível.</small></div>
+        <div class="stack" style="margin-top:12px">
+          <div class="lock" id="lock"><span style="font-size:18px">🔒</span><span><b>Telefone liberado após o aceite das duas partes.</b><br>Ana Paula aceitou. Toque para aceitar também.</span></div>
+          <div class="chat" id="chat">
+            <div class="msg sys">Reserva criada · Cálculo vol. 1 · R$ 45</div>
+            <div class="msg them">Oi Lucas! Posso levar amanhã no Bandejão da Área 1, umas 12h?</div>
+            <div class="msg me">Fechado! Pago no Pix na hora.<br><span class="place">📍 Bandejão Área 1 · qua., 11/11 · 12h00</span></div>
+          </div>
+          <div class="compose"><input class="t" id="msgin" placeholder="Escreva uma mensagem" aria-label="Mensagem"><button class="btn sm" id="send" type="button" style="width:auto;padding:10px 14px">Enviar</button></div>
+          <button class="btn" data-go="avaliacao" type="button">Já nos encontramos</button>
+          <button class="btn ghost sm" type="button" id="cancel">Cancelar reserva com aviso</button>
+        </div>
+      </div>
+
+      <div class="view" id="v-avaliacao" hidden>
+        <div class="track" aria-label="Andamento"><div class="ok">Pedido</div><div class="ok">Reserva</div><div class="ok">Encontro</div><div class="now">Avaliação</div></div>
+        <h2>Como foi com a Ana Paula?</h2>
+        <p class="sub">A Ana também avalia você. As notas aparecem para os dois ao mesmo tempo.</p>
+        <div class="stack" id="rateform">
+          <div class="card stack">
+            <label class="f">O encontro aconteceu?</label>
+            <div class="yn" id="yn"><button class="on" type="button">Sim, recebi o item</button><button class="no" type="button">A pessoa não apareceu</button></div>
+            <label class="f">Nota</label>
+            <div class="stars" id="stars"><button type="button" class="on" aria-label="1 estrela">★</button><button type="button" class="on" aria-label="2 estrelas">★</button><button type="button" class="on" aria-label="3 estrelas">★</button><button type="button" class="on" aria-label="4 estrelas">★</button><button type="button" class="on" aria-label="5 estrelas">★</button></div>
+            <label class="f">O que se confirmou</label>
+            <div class="chips" id="tags"><button class="chip on" type="button">Pontual</button><button class="chip on" type="button">Item como descrito</button><button class="chip" type="button">Respondeu rápido</button><button class="chip" type="button">Avisou mudanças</button></div>
+          </div>
+          <button class="btn" id="enviar" type="button">Enviar avaliação</button>
+        </div>
+        <div class="done" id="done" hidden>
+          <div class="big">★ 4,9 → 4,9</div>
+          <p><b>Negociação concluída.</b><br>O compromisso cumprido entra no histórico das duas contas.</p>
+          <button class="btn ghost" data-go="pedido" type="button">Fazer outro pedido</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" hidden></div>
+      <nav class="tabbar" aria-hidden="true"><span class="on" id="tb1"><i>＋</i>Pedidos</span><span id="tb2"><i>◎</i>Ofertas</span><span id="tb3"><i>✉</i>Conversas</span><span><i>☆</i>Perfil</span></nav>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var views=["pedido","alerta","ofertas","reserva","avaliacao"];
+  var who=document.getElementById("who"), mode=document.getElementById("mode").children, toastEl=document.getElementById("toast"), tt;
+  function toast(m){toastEl.textContent=m;toastEl.hidden=false;clearTimeout(tt);tt=setTimeout(function(){toastEl.hidden=true},2600)}
+  function show(id){
+    if(views.indexOf(id)<0)id="pedido";
+    views.forEach(function(v){document.getElementById("v-"+v).hidden=(v!==id)});
+    document.querySelectorAll("#steps button").forEach(function(b){b.toggleAttribute("aria-current",b.dataset.go===id);if(b.dataset.go===id)b.setAttribute("aria-current","step")});
+    var seller=(id==="alerta");
+    who.innerHTML=seller?'<span>Ana Paula R. · ICMC</span><span class="av">AP</span>':'<span>Lucas S. · ICMC</span><span class="av">LS</span>';
+    mode[0].classList.toggle("on",!seller);mode[1].classList.toggle("on",seller);
+    document.getElementById("tb1").classList.toggle("on",id==="pedido"||id==="alerta");
+    document.getElementById("tb2").classList.toggle("on",id==="ofertas");
+    document.getElementById("tb3").classList.toggle("on",id==="reserva"||id==="avaliacao");
+    toastEl.hidden=true;
+    if(location.hash!=="#"+id){try{history.replaceState(null,"","#"+id)}catch(e){location.hash=id}}
+    var v=document.getElementById("v-"+id);v.scrollTop=0;
+  }
+  document.addEventListener("click",function(e){
+    var g=e.target.closest("[data-go]");if(!g)return;
+    var id=g.dataset.go;
+    if(g.classList.contains("btn")){
+      if(id==="alerta")toast("Pedido publicado. Avisamos 14 pessoas que têm livros de Cálculo.");
+    }
+    show(id);
+    if(g.classList.contains("btn")&&id==="ofertas")toast("Oferta enviada ao Lucas.");
+    if(g.classList.contains("btn")&&id==="reserva")toast("Reserva feita. O livro saiu da vitrine por 48 h.");
+  });
+  [["cats",true],["cond",false],["tags",false]].forEach(function(p){
+    document.getElementById(p[0]).addEventListener("click",function(e){var c=e.target.closest(".chip");if(!c)return;
+      if(p[1])this.querySelectorAll(".chip").forEach(function(x){x.classList.remove("on")});
+      c.classList.toggle("on",p[1]?true:!c.classList.contains("on"));});
+  });
+  document.getElementById("importar").addEventListener("click",function(){
+    document.getElementById("item").value="Cálculo vol. 1, James Stewart";
+    toast("2 livros importados da bibliografia. Publicaremos um pedido para cada.");
+  });
+  var end=Date.now()+(47*3600+59*60+30)*1000;
+  function pad(n){return String(n).padStart(2,"0")}
+  setInterval(function(){var s=Math.max(0,Math.floor((end-Date.now())/1000));document.getElementById("clock").textContent=pad(Math.floor(s/3600))+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60)},1000);
+  document.getElementById("lock").addEventListener("click",function(){
+    this.innerHTML='<span style="font-size:18px">🔓</span><span><b>Contato liberado: (16) 9 8XXX-X214</b><br>Vocês dois aceitaram a reserva.</span>';
+  });
+  function send(){var i=document.getElementById("msgin");if(!i.value.trim())return;var d=document.createElement("div");d.className="msg me";d.textContent=i.value.trim();document.getElementById("chat").appendChild(d);i.value="";}
+  document.getElementById("send").addEventListener("click",send);
+  document.getElementById("msgin").addEventListener("keydown",function(e){if(e.key==="Enter")send()});
+  document.getElementById("cancel").addEventListener("click",function(){toast("Cancelando com 24 h de aviso, sua reputação não é afetada.")});
+  var yn=document.getElementById("yn").children;
+  Array.prototype.forEach.call(yn,function(b,i){b.addEventListener("click",function(){yn[0].classList.toggle("on",i===0);yn[1].classList.toggle("on",i===1)})});
+  var st=document.querySelectorAll("#stars button");
+  st.forEach(function(b,i){b.addEventListener("click",function(){st.forEach(function(x,j){x.classList.toggle("on",j<=i)})})});
+  document.getElementById("enviar").addEventListener("click",function(){
+    var no=yn[1].classList.contains("on");
+    document.getElementById("rateform").hidden=true;var d=document.getElementById("done");d.hidden=false;
+    d.querySelector(".big").textContent=no?"Ausência registrada":"Concluída ✓";
+    d.querySelector("p").innerHTML=no?"<b>O item volta para você reservar de outra pessoa.</b><br>A ausência sem aviso conta contra a reputação da outra conta.":"<b>Negociação concluída.</b><br>O compromisso cumprido entra no histórico das duas contas.";
+  });
+  document.querySelectorAll('[data-go="pedido"]').forEach(function(b){b.addEventListener("click",function(){document.getElementById("rateform").hidden=false;document.getElementById("done").hidden=true})});
+  window.addEventListener("hashchange",function(){show(location.hash.slice(1))});
+  show(location.hash.slice(1)||"pedido");
+})();
+</script>
+</body>
+</html>
